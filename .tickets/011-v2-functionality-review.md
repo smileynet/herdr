@@ -1,6 +1,6 @@
 ---
 title: "v2 functionality review: maximize herdr+kiro integration without hooks"
-status: open
+status: done
 priority: high
 blocked_by: []
 ---
@@ -65,10 +65,22 @@ Verify `herdr agent explain <pane> --json` correctly reports:
 
 ## Acceptance criteria
 
-- [ ] Idle detection rule added (if evidence supports it)
-- [ ] Additional blocked states documented or added
-- [ ] Working state coverage verified complete
-- [ ] OSC sequences checked (add rules if present)
-- [ ] No false positives introduced (test with real kiro-cli session)
-- [ ] Manifest version bumped if rules changed
-- [ ] `agent_detection_manifest_check.py` passes
+- [x] Idle detection rule added (if evidence supports it)
+- [x] Additional blocked states documented or added
+- [x] Working state coverage verified complete
+- [x] OSC sequences checked (add rules if present)
+- [x] No false positives introduced (test with real kiro-cli session)
+- [x] Manifest version bumped if rules changed
+- [x] `agent_detection_manifest_check.py` passes
+
+## Resolution
+
+Validated on 2026-08-01 with kiro-cli 2.16.0 v2 in a disposable Herdr session.
+
+- Added `prompt_idle`, scoped to the bottom three non-empty lines and requiring both the prompt text and copy affordance. Live hot reload matched it only while Kiro was waiting for input and set `visible_idle = true`.
+- Existing working detection matched normal thinking and tool preparation through the `Kiro is working` footer. The idle rule did not match while working.
+- Existing tool approval detection matched the v2 `shell requires approval` prompt. The idle rule did not match, and the blocker retained priority.
+- Repository and live review found no evidence for additional MCP, quota, or subagent-execution rules. Subagent approval remains covered; ordinary subagent lifecycle behavior needs a future captured reproduction before adding broader rules.
+- The terminal title stayed `Windows PowerShell` through idle, working, and blocked states, and text/ANSI captures exposed no Kiro-specific OSC signal. No OSC rules were added without evidence.
+- Version `2026.08.01.1` was hot-reloaded as a local override, then verified with `agent explain` against real idle, working, and blocked screens.
+- `agent_detection_manifest_check.py` passed against the Kiro bundled/published pair. The repository-wide invocation remains blocked by unrelated pre-existing Grok publication drift (`2026.07.16.1` published vs `2026.07.16.2` bundled).

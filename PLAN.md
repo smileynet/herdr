@@ -23,8 +23,8 @@ Uses kiro-cli's global hooks directory (`~/.kiro/hooks/`) which auto-fires on al
 | 005 | Add tests | done | 004 |
 | 006 | Review/update detection manifest | done | — |
 | 007 | End-to-end validation | done | 004, 005, 006 |
-| 010 | E2E: kiro-cli --v3 hook auto-fire | open | — |
-| 011 | v2 functionality review (maximize without hooks) | open | — |
+| 010 | E2E: kiro-cli --v3 hook auto-fire | done | — |
+| 011 | v2 functionality review (maximize without hooks) | done | — |
 
 ## Current v2 functionality (kiro-cli without --v3)
 
@@ -35,7 +35,7 @@ In v2 mode, herdr provides **screen-based detection only**:
 | Agent identification | ✅ | Detection manifest matches "kiro" from process/screen |
 | Working state | ✅ | "kiro is working" marker + spinner (◔/◑/◕/●) |
 | Blocked state | ✅ | Tool approval prompt, subagent approval prompt |
-| Idle state | ⚠️ Partial | Falls back to "unknown" — no positive idle rule yet |
+| Idle state | ✅ | Bottom prompt and copy affordance provide explicit visible-idle evidence |
 | Session ID reporting | ❌ | Requires v3 global hooks (hook can't fire in v2) |
 | Integration status | ✅ | `herdr integration status` shows `kiro: current (v1)` |
 
@@ -43,10 +43,7 @@ In v2 mode, herdr provides **screen-based detection only**:
 
 ## v3 status (kiro-cli --v3)
 
-**Not yet tested end-to-end.** The infrastructure is in place:
-- Hook script + JSON config installed at `~/.kiro/hooks/`
-- Server accepts and stores `herdr:kiro` session reports (proven via manual CLI call)
-- Remaining: confirm kiro-cli v3 actually discovers and fires the hook on SessionStart
+**Validated end-to-end on kiro-cli 2.16.0.** The global SessionStart hook reports Kiro's native `sess_<uuid>` identity after the first prompt, and Herdr preserves it across state transitions. Fresh Kiro processes report new identities, and uninstall leaves Kiro and screen detection working without session reporting.
 
 ## Phase 2: v3 GA validation (deferred until v3 leaves Early Access)
 

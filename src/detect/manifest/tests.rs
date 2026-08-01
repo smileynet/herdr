@@ -301,6 +301,33 @@ fn all_bundled_manifests_parse_and_validate() {
 }
 
 #[test]
+fn kiro_manifest_detects_prompt_idle_and_working_states() {
+    let idle = explain(
+        Agent::Kiro,
+        "─────────────────────────────────────────────────────────\n\
+kiro_default · auto · ◔ 2%                         D:\\tmp\n\n\
+ ask a question or describe a task ↵\n\
+                                      /copy to clipboard",
+    );
+    assert_eq!(idle.state, AgentState::Idle);
+    assert_eq!(
+        idle.matched_rule.as_ref().map(|rule| rule.id.as_str()),
+        Some("prompt_idle")
+    );
+    assert!(idle.visible_idle);
+
+    let working = explain(
+        Agent::Kiro,
+        "⠙ Thinking... (esc to cancel)\n\n\
+─────────────────────────────────────────────────────────\n\
+kiro_default · auto · ◔ 2%                         D:\\tmp\n\n\
+ Kiro is working · Type to steer · Ctrl+S to queue",
+    );
+    assert_eq!(working.state, AgentState::Working);
+    assert!(working.visible_working);
+}
+
+#[test]
 fn devin_manifest_detects_idle_working_and_blocked_states() {
     let idle = explain(
         Agent::Devin,
