@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "reviewer": "codex",
+  "reviewed_at": "2026-08-01T14:11:28Z",
+  "verdict": "changes_requested",
+  "commits": {
+    "scope": "all ancestors through reviewed_through, inclusive",
+    "reviewed_through": "d319ee3644e4ce5a768a12c0e896b729224d1ecc"
+  },
+  "ticket_source": {
+    "type": "tkt",
+    "root": ".tickets",
+    "observed_version": "0.1.0"
+  },
+  "tickets": [
+    {
+      "path": ".tickets/001-kiro-integration-target-enum.md",
+      "blob": "7957e561f53ed4008033edc9d4b1c63d6b013faf"
+    },
+    {
+      "path": ".tickets/002-kiro-hook-scripts.md",
+      "blob": "dee54f880a5d1164e79244df42a85865c2b3a793"
+    },
+    {
+      "path": ".tickets/003-kiro-env-and-registry.md",
+      "blob": "bfc400a0afb290c9bddcc873b9133a6a846d1e0d"
+    },
+    {
+      "path": ".tickets/004-kiro-install-uninstall.md",
+      "blob": "981bfd2d821ae103bfbbe6158a52fb464a91ae85"
+    },
+    {
+      "path": ".tickets/005-kiro-integration-tests.md",
+      "blob": "7764013033fb2be3c320def44330c9ce4aaf08a6"
+    },
+    {
+      "path": ".tickets/006-kiro-manifest-review.md",
+      "blob": "543b9cdd802075af35e8e6a6f81936dbbef312c4"
+    },
+    {
+      "path": ".tickets/007-kiro-e2e-validation.md",
+      "blob": "f96207d22a99d2566b38aefc0e2ba9346f209fd3"
+    },
+    {
+      "path": ".tickets/008-future-v3-hooks-migration.md",
+      "blob": "bdb8dc1fd187b2d536c90a8d6ea7b9cfd0dc47a3"
+    },
+    {
+      "path": ".tickets/009-future-v3-enhanced-reporting.md",
+      "blob": "df84c17b91c558f995563e9849ac3d28c8dd1a90"
+    }
+  ]
+}
