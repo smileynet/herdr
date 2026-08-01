@@ -216,6 +216,7 @@ pub(crate) fn is_official_agent_source(source: &str, agent: &str) -> bool {
             | ("herdr:devin", "devin")
             | ("herdr:droid", "droid")
             | ("herdr:kimi", "kimi")
+            | ("herdr:kiro", "kiro")
             | ("herdr:omp", "omp")
             | ("herdr:mastracode", "mastracode")
             | ("herdr:pi", "pi")
