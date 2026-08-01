@@ -19,7 +19,7 @@ if ([string]::IsNullOrWhiteSpace($sessionId)) { exit 0 }
 
 $seq = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
 try {
-    $args = @(
+    $herdrArgs = @(
         "pane",
         "report-agent-session",
         $env:HERDR_PANE_ID,
@@ -32,6 +32,6 @@ try {
         "--agent-session-id",
         "$sessionId"
     )
-    & herdr @args 2>$null | Out-Null
+    & herdr @herdrArgs 2>$null | Out-Null
 } catch {
 }
