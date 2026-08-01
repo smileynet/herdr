@@ -1,6 +1,6 @@
 ---
 title: "E2E validation: kiro-cli --v3 session reporting in herdr"
-status: open
+status: done
 priority: high
 blocked_by: []
 ---
@@ -67,8 +67,20 @@ Confirm the full integration path: herdr installs the hook, kiro-cli v3 discover
 
 ## Acceptance criteria
 
-- [ ] Hook fires on SessionStart in v3 mode
-- [ ] `agent_session` appears in herdr pane list
-- [ ] Session ID is valid UUID matching kiro-cli's `/session-id`
-- [ ] Detection manifest unaffected by hook presence
-- [ ] Uninstall clean — no kiro-cli errors after hook removal
+- [x] Hook fires on SessionStart in v3 mode
+- [x] `agent_session` appears in herdr pane list
+- [x] Session ID matches kiro-cli's `/session-id`
+- [x] Detection manifest unaffected by hook presence
+- [x] Uninstall clean — no kiro-cli errors after hook removal
+
+## Resolution
+
+Validated on 2026-08-01 with Herdr 0.7.5 from this branch and kiro-cli 2.16.0 in a disposable named session.
+
+- The hook reported `sess_40131e3e-5fc8-47f1-b6a0-95d6c88e733c` after the first prompt. Kiro's `/session-id` displayed the same value.
+- The session identity persisted through blocked, working, and idle transitions.
+- A fresh Kiro process in the same pane reported a different value: `sess_54ceb84e-9d49-4078-a7e8-477eaf35b512`.
+- After uninstall, Kiro started and completed a prompt without errors, detection remained active, and no `agent_session` was reported.
+- The current integration was reinstalled after the uninstall check.
+
+Kiro session IDs use a `sess_` prefix followed by a UUID; the acceptance wording was corrected to require an exact `/session-id` match rather than a bare UUID.
