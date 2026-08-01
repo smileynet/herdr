@@ -23,6 +23,8 @@ Uses kiro-cli's global hooks directory (`~/.kiro/hooks/`) which auto-fires on al
 | 005 | Add tests | done | 004 |
 | 006 | Review/update detection manifest | done | — |
 | 007 | End-to-end validation | open | 004, 005, 006 |
+| 010 | E2E: kiro-cli --v3 session reporting | open | 004, 005 |
+| 011 | v2 functionality review (maximize without hooks) | open | — |
 
 ## Phase 2: v3 GA validation (deferred until v3 leaves Early Access)
 
