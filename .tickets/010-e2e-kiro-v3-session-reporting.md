@@ -2,10 +2,25 @@
 title: "E2E validation: kiro-cli --v3 session reporting in herdr"
 status: open
 priority: high
-blocked_by: ["004", "005"]
+blocked_by: []
 ---
 
 # E2E validation: kiro-cli --v3 session reporting in herdr
+
+## Status
+
+**Not yet tested.** The server-side path is fully proven (manual `report-agent-session` works). What remains is confirming that kiro-cli v3 actually discovers and fires the hook from `~/.kiro/hooks/herdr-agent-state.json`.
+
+## What's proven
+
+- Server accepts `herdr:kiro` session reports ✅
+- Hook script (`herdr-agent-state.ps1`) invokes CLI correctly ✅
+- Hook JSON config (`herdr-agent-state.json`) uses correct v3 format ✅
+- PS1 `$args` bug fixed (`$herdrArgs`) ✅
+
+## What needs testing
+
+Start `kiro-cli --v3` in a herdr pane and verify the hook fires automatically on SessionStart without manual invocation.
 
 ## What to validate
 

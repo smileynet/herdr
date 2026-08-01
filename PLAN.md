@@ -22,9 +22,31 @@ Uses kiro-cli's global hooks directory (`~/.kiro/hooks/`) which auto-fires on al
 | 004 | Implement install/uninstall | done | 002, 003 |
 | 005 | Add tests | done | 004 |
 | 006 | Review/update detection manifest | done | — |
-| 007 | End-to-end validation | open | 004, 005, 006 |
-| 010 | E2E: kiro-cli --v3 session reporting | open | 004, 005 |
+| 007 | End-to-end validation | done | 004, 005, 006 |
+| 010 | E2E: kiro-cli --v3 hook auto-fire | open | — |
 | 011 | v2 functionality review (maximize without hooks) | open | — |
+
+## Current v2 functionality (kiro-cli without --v3)
+
+In v2 mode, herdr provides **screen-based detection only**:
+
+| Feature | Works in v2 | How |
+|---------|-------------|-----|
+| Agent identification | ✅ | Detection manifest matches "kiro" from process/screen |
+| Working state | ✅ | "kiro is working" marker + spinner (◔/◑/◕/●) |
+| Blocked state | ✅ | Tool approval prompt, subagent approval prompt |
+| Idle state | ⚠️ Partial | Falls back to "unknown" — no positive idle rule yet |
+| Session ID reporting | ❌ | Requires v3 global hooks (hook can't fire in v2) |
+| Integration status | ✅ | `herdr integration status` shows `kiro: current (v1)` |
+
+**Why session reporting doesn't work in v2:** Global hooks (`~/.kiro/hooks/*.json`) are a v3-only feature. In v2, hooks must be embedded in agent config files, but shadowing `kiro_default` (the built-in agent) breaks tool dispatch entirely. There is no safe v2 hook injection path.
+
+## v3 status (kiro-cli --v3)
+
+**Not yet tested end-to-end.** The infrastructure is in place:
+- Hook script + JSON config installed at `~/.kiro/hooks/`
+- Server accepts and stores `herdr:kiro` session reports (proven via manual CLI call)
+- Remaining: confirm kiro-cli v3 actually discovers and fires the hook on SessionStart
 
 ## Phase 2: v3 GA validation (deferred until v3 leaves Early Access)
 
