@@ -14,8 +14,8 @@ use super::config_edit::{
 };
 use super::env::{
     claude_dir, codex_dir, copilot_dir, cursor_dir, devin_dir, droid_dir, grok_dir, hermes_dir,
-    hermes_plugin_dir, kilo_dir, kimi_dir, mastracode_dir, omp_extension_dir, opencode_dir,
-    pi_extension_dir, qodercli_dir,
+    hermes_plugin_dir, kilo_dir, kimi_dir, kiro_dir, mastracode_dir, omp_extension_dir,
+    opencode_dir, pi_extension_dir, qodercli_dir,
 };
 use super::file_ops::{
     make_executable, remove_dir_all_if_exists, remove_file_if_exists, remove_legacy_bash_hook_file,
@@ -26,9 +26,9 @@ use super::types::{
     DevinInstallPaths, DevinUninstallResult, DroidInstallPaths, DroidUninstallResult,
     GrokInstallPaths, GrokUninstallResult, HermesInstallPaths, HermesUninstallResult,
     KiloInstallPaths, KiloUninstallResult, KimiInstallPaths, KimiUninstallResult,
-    MastracodeInstallPaths, MastracodeUninstallResult, OmpInstallPaths, OmpUninstallResult,
-    OpenCodeInstallPaths, OpenCodeUninstallResult, PiUninstallResult, QodercliInstallPaths,
-    QodercliUninstallResult,
+    KiroInstallPaths, KiroUninstallResult, MastracodeInstallPaths, MastracodeUninstallResult,
+    OmpInstallPaths, OmpUninstallResult, OpenCodeInstallPaths, OpenCodeUninstallResult,
+    PiUninstallResult, QodercliInstallPaths, QodercliUninstallResult,
 };
 use super::{
     CLAUDE_HOOK_ASSET, CLAUDE_HOOK_INSTALL_NAME, CODEX_HOOK_ASSET, CODEX_HOOK_INSTALL_NAME,
@@ -45,7 +45,7 @@ use super::{
     OMP_EXTENSION_ASSET, OMP_EXTENSION_INSTALL_NAME, OPENCODE_PLUGIN_ASSET,
     OPENCODE_PLUGIN_INSTALL_NAME, PI_EXTENSION_ASSET, PI_EXTENSION_INSTALL_NAME,
     QODERCLI_HOOK_ASSET, QODERCLI_HOOK_EVENTS, QODERCLI_HOOK_INSTALL_NAME,
-    QODERCLI_REMOVED_LIFECYCLE_HOOK_EVENTS,
+    QODERCLI_REMOVED_LIFECYCLE_HOOK_EVENTS, KIRO_HOOK_ASSET, KIRO_HOOK_INSTALL_NAME,
 };
 
 fn ensure_extension_dir(dir: &Path, agent: &str) -> io::Result<()> {
@@ -1270,5 +1270,36 @@ pub(crate) fn uninstall_grok() -> io::Result<GrokUninstallResult> {
         config_path,
         removed_hook_file,
         removed_config_file,
+    })
+}
+
+pub(crate) fn install_kiro() -> io::Result<KiroInstallPaths> {
+    let dir = kiro_dir()?;
+    if !dir.is_dir() {
+        return Err(io::Error::other(format!(
+            "kiro directory not found at {}. install kiro-cli first",
+            dir.display()
+        )));
+    }
+
+    let hooks_dir = dir.join("hooks");
+    fs::create_dir_all(&hooks_dir)?;
+
+    let hook_path = hooks_dir.join(KIRO_HOOK_INSTALL_NAME);
+    fs::write(&hook_path, KIRO_HOOK_ASSET)?;
+    make_executable(&hook_path)?;
+
+    Ok(KiroInstallPaths { hook_path })
+}
+
+pub(crate) fn uninstall_kiro() -> io::Result<KiroUninstallResult> {
+    let hooks_dir = kiro_dir()?.join("hooks");
+    let hook_path = hooks_dir.join(KIRO_HOOK_INSTALL_NAME);
+
+    let removed_hook_file = remove_file_if_exists(&hook_path)?;
+
+    Ok(KiroUninstallResult {
+        hook_path,
+        removed_hook_file,
     })
 }

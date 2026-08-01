@@ -219,6 +219,17 @@ const GROK_HOOK_INSTALL_NAME: &str = "herdr-agent-state.sh";
 const GROK_HOOK_CONFIG_INSTALL_NAME: &str = "herdr.json";
 const GROK_HOOK_ASSET: &str = include_str!("assets/grok/herdr-agent-state.sh");
 const GROK_INTEGRATION_VERSION: u32 = 1;
+const KIRO_HOOK_INSTALL_NAME: &str = if cfg!(windows) {
+    "herdr-agent-state.ps1"
+} else {
+    "herdr-agent-state.sh"
+};
+const KIRO_HOOK_ASSET: &str = if cfg!(windows) {
+    include_str!("assets/kiro/herdr-agent-state.ps1")
+} else {
+    include_str!("assets/kiro/herdr-agent-state.sh")
+};
+const KIRO_INTEGRATION_VERSION: u32 = 1;
 const INTEGRATION_VERSION_MARKER: &str = "HERDR_INTEGRATION_VERSION=";
 
 pub(crate) const INSTALL_WARNING_PREFIX: &str = "warning:";

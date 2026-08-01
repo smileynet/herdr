@@ -17,6 +17,7 @@ pub(crate) const KIMI_CODE_HOME_ENV_VAR: &str = "KIMI_CODE_HOME";
 pub(crate) const COPILOT_HOME_ENV_VAR: &str = "COPILOT_HOME";
 pub(crate) const QODERCLI_CONFIG_DIR_ENV_VAR: &str = "QODER_CONFIG_DIR";
 pub(crate) const CURSOR_CONFIG_DIR_ENV_VAR: &str = "CURSOR_CONFIG_DIR";
+pub(crate) const KIRO_HOME_ENV_VAR: &str = "KIRO_HOME";
 pub(crate) const GROK_CONFIG_DIR_ENV_VAR: &str = "GROK_CONFIG_DIR";
 /// The grok CLI's own config-home override (documented alongside
 /// `$GROK_HOME/config.toml` and `$GROK_HOME/auth.json`).
@@ -136,6 +137,10 @@ pub(crate) fn qodercli_dir() -> io::Result<PathBuf> {
 
 pub(crate) fn cursor_dir() -> io::Result<PathBuf> {
     config_dir_from_env_or_home(CURSOR_CONFIG_DIR_ENV_VAR, &[".cursor"])
+}
+
+pub(crate) fn kiro_dir() -> io::Result<PathBuf> {
+    config_dir_from_env_or_home(KIRO_HOME_ENV_VAR, &[".kiro"])
 }
 
 pub(crate) fn mastracode_dir() -> io::Result<PathBuf> {

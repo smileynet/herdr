@@ -104,6 +104,7 @@ fn clear_integration_path_env() {
     std::env::remove_var(CURSOR_CONFIG_DIR_ENV_VAR);
     std::env::remove_var(GROK_CONFIG_DIR_ENV_VAR);
     std::env::remove_var(GROK_HOME_ENV_VAR);
+    std::env::remove_var(KIRO_HOME_ENV_VAR);
 }
 
 fn kimi_hook_command(hook_path: &Path, action: &str) -> String {
@@ -3784,5 +3785,155 @@ fn grok_dir_honors_grok_home_after_config_dir_seam() {
 
     std::env::remove_var(GROK_HOME_ENV_VAR);
     clear_integration_path_env();
+    let _ = fs::remove_dir_all(base);
+}
+
+#[test]
+fn install_kiro_writes_hook_to_hooks_dir() {
+    let _lock = integration_env_lock();
+    let base = unique_base();
+    let kiro_home = base.join(".kiro");
+    fs::create_dir_all(&kiro_home).unwrap();
+    std::env::set_var(KIRO_HOME_ENV_VAR, &kiro_home);
+
+    let installed = install_kiro().unwrap();
+
+    let hooks_dir = kiro_home.join("hooks");
+    assert_eq!(installed.hook_path, hooks_dir.join(KIRO_HOOK_INSTALL_NAME));
+    let content = fs::read_to_string(&installed.hook_path).unwrap();
+    assert_eq!(content, KIRO_HOOK_ASSET);
+    assert!(content.contains("HERDR_INTEGRATION_ID=kiro"));
+    assert!(content.contains("HERDR_INTEGRATION_VERSION=1"));
+
+    std::env::remove_var(KIRO_HOME_ENV_VAR);
+    let _ = fs::remove_dir_all(base);
+}
+
+#[test]
+fn install_kiro_is_idempotent() {
+    let _lock = integration_env_lock();
+    let base = unique_base();
+    let kiro_home = base.join(".kiro");
+    fs::create_dir_all(&kiro_home).unwrap();
+    std::env::set_var(KIRO_HOME_ENV_VAR, &kiro_home);
+
+    install_kiro().unwrap();
+    let first = fs::read_to_string(kiro_home.join("hooks").join(KIRO_HOOK_INSTALL_NAME)).unwrap();
+    install_kiro().unwrap();
+    let second = fs::read_to_string(kiro_home.join("hooks").join(KIRO_HOOK_INSTALL_NAME)).unwrap();
+    assert_eq!(first, second);
+
+    std::env::remove_var(KIRO_HOME_ENV_VAR);
+    let _ = fs::remove_dir_all(base);
+}
+
+#[test]
+fn install_kiro_errors_when_kiro_dir_missing() {
+    let _lock = integration_env_lock();
+    let base = unique_base();
+    let missing = base.join(".kiro");
+    std::env::set_var(KIRO_HOME_ENV_VAR, &missing);
+
+    let err = install_kiro().unwrap_err().to_string();
+    assert!(
+        err.contains("kiro directory not found"),
+        "unexpected error: {err}"
+    );
+
+    std::env::remove_var(KIRO_HOME_ENV_VAR);
+    let _ = fs::remove_dir_all(base);
+}
+
+#[test]
+fn uninstall_kiro_removes_hook_file() {
+    let _lock = integration_env_lock();
+    let base = unique_base();
+    let kiro_home = base.join(".kiro");
+    fs::create_dir_all(&kiro_home).unwrap();
+    std::env::set_var(KIRO_HOME_ENV_VAR, &kiro_home);
+
+    install_kiro().unwrap();
+    let result = uninstall_kiro().unwrap();
+    assert!(result.removed_hook_file);
+    assert!(!result.hook_path.is_file());
+
+    // Uninstalling again is a no-op.
+    let again = uninstall_kiro().unwrap();
+    assert!(!again.removed_hook_file);
+
+    std::env::remove_var(KIRO_HOME_ENV_VAR);
+    let _ = fs::remove_dir_all(base);
+}
+
+#[test]
+fn kiro_integration_version_parsed_from_hook() {
+    let _lock = integration_env_lock();
+    let base = unique_base();
+    let kiro_home = base.join(".kiro");
+    fs::create_dir_all(&kiro_home).unwrap();
+    std::env::set_var(KIRO_HOME_ENV_VAR, &kiro_home);
+
+    install_kiro().unwrap();
+
+    let hook_path = kiro_home.join("hooks").join(KIRO_HOOK_INSTALL_NAME);
+    let content = fs::read_to_string(&hook_path).unwrap();
+    let version = parse_integration_version(&content);
+    assert_eq!(version, Some(KIRO_INTEGRATION_VERSION));
+
+    std::env::remove_var(KIRO_HOME_ENV_VAR);
+    let _ = fs::remove_dir_all(base);
+}
+
+#[test]
+fn kiro_dir_respects_kiro_home_env() {
+    let _lock = integration_env_lock();
+    let custom_path = PathBuf::from("/tmp/custom-kiro-home");
+    std::env::set_var(KIRO_HOME_ENV_VAR, &custom_path);
+
+    let resolved = kiro_dir().unwrap();
+    assert_eq!(resolved, custom_path);
+
+    std::env::remove_var(KIRO_HOME_ENV_VAR);
+}
+
+#[test]
+fn kiro_status_not_installed_when_hook_missing() {
+    let _lock = integration_env_lock();
+    let base = unique_base();
+    let kiro_home = base.join(".kiro");
+    fs::create_dir_all(&kiro_home).unwrap();
+    std::env::set_var(KIRO_HOME_ENV_VAR, &kiro_home);
+
+    let hook_path = kiro_home.join("hooks").join(KIRO_HOOK_INSTALL_NAME);
+    let status = integration_status_at(
+        crate::api::schema::IntegrationTarget::Kiro,
+        hook_path,
+        KIRO_INTEGRATION_VERSION,
+    );
+    assert_eq!(status.state, IntegrationStatusKind::NotInstalled);
+
+    std::env::remove_var(KIRO_HOME_ENV_VAR);
+    let _ = fs::remove_dir_all(base);
+}
+
+#[test]
+fn kiro_status_current_after_install() {
+    let _lock = integration_env_lock();
+    let base = unique_base();
+    let kiro_home = base.join(".kiro");
+    fs::create_dir_all(&kiro_home).unwrap();
+    std::env::set_var(KIRO_HOME_ENV_VAR, &kiro_home);
+
+    install_kiro().unwrap();
+
+    let hook_path = kiro_home.join("hooks").join(KIRO_HOOK_INSTALL_NAME);
+    let status = integration_status_at(
+        crate::api::schema::IntegrationTarget::Kiro,
+        hook_path,
+        KIRO_INTEGRATION_VERSION,
+    );
+    assert_eq!(status.state, IntegrationStatusKind::Current);
+
+    std::env::remove_var(KIRO_HOME_ENV_VAR);
     let _ = fs::remove_dir_all(base);
 }

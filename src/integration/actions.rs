@@ -3,11 +3,11 @@ use std::io;
 use super::registry::{integration_target_label, integration_target_supported};
 use super::targets::{
     install_claude, install_codex, install_copilot, install_cursor, install_devin, install_droid,
-    install_grok, install_hermes, install_kilo, install_kimi, install_mastracode, install_omp,
-    install_opencode, install_pi, install_qodercli, uninstall_claude, uninstall_codex,
+    install_grok, install_hermes, install_kilo, install_kimi, install_kiro, install_mastracode,
+    install_omp, install_opencode, install_pi, install_qodercli, uninstall_claude, uninstall_codex,
     uninstall_copilot, uninstall_cursor, uninstall_devin, uninstall_droid, uninstall_grok,
-    uninstall_hermes, uninstall_kilo, uninstall_kimi, uninstall_mastracode, uninstall_omp,
-    uninstall_opencode, uninstall_pi, uninstall_qodercli,
+    uninstall_hermes, uninstall_kilo, uninstall_kimi, uninstall_kiro, uninstall_mastracode,
+    uninstall_omp, uninstall_opencode, uninstall_pi, uninstall_qodercli,
 };
 use super::version::{agent_version_requirement, enforce_agent_version};
 use super::{KIMI_MIN_VERSION, PI_EXTENSION_INSTALL_NAME};
@@ -216,6 +216,13 @@ fn install_target_inner(target: crate::api::schema::IntegrationTarget) -> io::Re
                     installed.config_path.display()
                 ),
             ]
+        }
+        crate::api::schema::IntegrationTarget::Kiro => {
+            let installed = install_kiro()?;
+            vec![format!(
+                "installed kiro integration hook to {}",
+                installed.hook_path.display()
+            )]
         }
     };
 
@@ -597,6 +604,20 @@ pub(crate) fn uninstall_target(
                 ));
             }
             messages
+        }
+        crate::api::schema::IntegrationTarget::Kiro => {
+            let result = uninstall_kiro()?;
+            if result.removed_hook_file {
+                vec![format!(
+                    "removed kiro hook at {}",
+                    result.hook_path.display()
+                )]
+            } else {
+                vec![format!(
+                    "no kiro hook found at {}",
+                    result.hook_path.display()
+                )]
+            }
         }
     };
 
