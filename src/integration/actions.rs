@@ -219,10 +219,17 @@ fn install_target_inner(target: crate::api::schema::IntegrationTarget) -> io::Re
         }
         crate::api::schema::IntegrationTarget::Kiro => {
             let installed = install_kiro()?;
-            vec![format!(
-                "installed kiro integration hook to {}",
-                installed.hook_path.display()
-            )]
+            vec![
+                format!(
+                    "installed kiro integration hook to {}",
+                    installed.hook_path.display()
+                ),
+                format!(
+                    "registered kiro hook config at {}",
+                    installed.config_path.display()
+                ),
+                "session reporting requires kiro-cli v3 mode (kiro-cli --v3)".to_string(),
+            ]
         }
     };
 
@@ -607,17 +614,30 @@ pub(crate) fn uninstall_target(
         }
         crate::api::schema::IntegrationTarget::Kiro => {
             let result = uninstall_kiro()?;
+            let mut messages = Vec::new();
             if result.removed_hook_file {
-                vec![format!(
+                messages.push(format!(
                     "removed kiro hook at {}",
                     result.hook_path.display()
-                )]
+                ));
             } else {
-                vec![format!(
+                messages.push(format!(
                     "no kiro hook found at {}",
                     result.hook_path.display()
-                )]
+                ));
             }
+            if result.removed_config_file {
+                messages.push(format!(
+                    "removed kiro hook config at {}",
+                    result.config_path.display()
+                ));
+            } else {
+                messages.push(format!(
+                    "no kiro hook config found at {}",
+                    result.config_path.display()
+                ));
+            }
+            messages
         }
     };
 

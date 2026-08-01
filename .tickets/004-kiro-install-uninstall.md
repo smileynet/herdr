@@ -7,7 +7,20 @@ blocked_by: ["002", "003"]
 
 # Implement install_kiro and uninstall_kiro
 
-## What to build
+## What was built
+
+Install writes two files to `~/.kiro/hooks/`:
+1. **Hook script** (`herdr-agent-state.sh` / `.ps1`) — the executable that reports session ID to herdr
+2. **Hook config** (`herdr-agent-state.json`) — v3 standalone hook definition that tells kiro-cli when to run the script
+
+Uninstall removes both files.
+
+## Key design decisions
+
+- **v3 global hooks**: The hook config uses kiro-cli v3's standalone format (`~/.kiro/hooks/*.json`). This requires `kiro-cli --v3` mode.
+- **v2 cannot use global hooks**: Global hooks are v3-only (confirmed in 2.13 changelog). v2 hooks are embedded in agent configs, but shadowing `kiro_default` breaks tool dispatch entirely.
+- **Install message**: Explicitly states "session reporting requires kiro-cli v3 mode" so users know.
+- **Detection still works in v2**: The screen detection manifest (`kiro.toml`) handles working/blocked/idle without hooks. Only session ID reporting needs v3.
 
 Write the `install_kiro()` and `uninstall_kiro()` functions in `targets.rs` and wire them into `actions.rs`.
 

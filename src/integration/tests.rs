@@ -3800,10 +3800,21 @@ fn install_kiro_writes_hook_to_hooks_dir() {
 
     let hooks_dir = kiro_home.join("hooks");
     assert_eq!(installed.hook_path, hooks_dir.join(KIRO_HOOK_INSTALL_NAME));
+    assert_eq!(
+        installed.config_path,
+        hooks_dir.join(KIRO_HOOK_CONFIG_INSTALL_NAME)
+    );
     let content = fs::read_to_string(&installed.hook_path).unwrap();
     assert_eq!(content, KIRO_HOOK_ASSET);
     assert!(content.contains("HERDR_INTEGRATION_ID=kiro"));
     assert!(content.contains("HERDR_INTEGRATION_VERSION=1"));
+
+    let config: Value =
+        serde_json::from_str(&fs::read_to_string(&installed.config_path).unwrap()).unwrap();
+    assert_eq!(config, kiro_hook_config(&installed.hook_path));
+    assert_eq!(config["version"], "v1");
+    assert_eq!(config["hooks"][0]["trigger"], "SessionStart");
+    assert_eq!(config["hooks"][0]["name"], "herdr-agent-state");
 
     std::env::remove_var(KIRO_HOME_ENV_VAR);
     let _ = fs::remove_dir_all(base);
@@ -3855,11 +3866,14 @@ fn uninstall_kiro_removes_hook_file() {
     install_kiro().unwrap();
     let result = uninstall_kiro().unwrap();
     assert!(result.removed_hook_file);
+    assert!(result.removed_config_file);
     assert!(!result.hook_path.is_file());
+    assert!(!result.config_path.is_file());
 
     // Uninstalling again is a no-op.
     let again = uninstall_kiro().unwrap();
     assert!(!again.removed_hook_file);
+    assert!(!again.removed_config_file);
 
     std::env::remove_var(KIRO_HOME_ENV_VAR);
     let _ = fs::remove_dir_all(base);

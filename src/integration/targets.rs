@@ -45,7 +45,8 @@ use super::{
     OMP_EXTENSION_ASSET, OMP_EXTENSION_INSTALL_NAME, OPENCODE_PLUGIN_ASSET,
     OPENCODE_PLUGIN_INSTALL_NAME, PI_EXTENSION_ASSET, PI_EXTENSION_INSTALL_NAME,
     QODERCLI_HOOK_ASSET, QODERCLI_HOOK_EVENTS, QODERCLI_HOOK_INSTALL_NAME,
-    QODERCLI_REMOVED_LIFECYCLE_HOOK_EVENTS, KIRO_HOOK_ASSET, KIRO_HOOK_INSTALL_NAME,
+    QODERCLI_REMOVED_LIFECYCLE_HOOK_EVENTS, KIRO_HOOK_ASSET, KIRO_HOOK_CONFIG_INSTALL_NAME,
+    KIRO_HOOK_INSTALL_NAME,
 };
 
 fn ensure_extension_dir(dir: &Path, agent: &str) -> io::Result<()> {
@@ -1273,6 +1274,30 @@ pub(crate) fn uninstall_grok() -> io::Result<GrokUninstallResult> {
     })
 }
 
+pub(crate) fn kiro_hook_config(hook_path: &Path) -> Value {
+    let command = if cfg!(windows) {
+        format!(
+            "powershell -ExecutionPolicy Bypass -File \"{}\"",
+            hook_path.display().to_string().replace('\\', "/")
+        )
+    } else {
+        let quoted = shell_single_quote(&hook_path.display().to_string());
+        format!("sh {quoted}")
+    };
+    json!({
+        "version": "v1",
+        "hooks": [
+            {
+                "name": "herdr-agent-state",
+                "trigger": "SessionStart",
+                "action": { "type": "command", "command": command },
+                "timeout": 10,
+                "enabled": true
+            }
+        ]
+    })
+}
+
 pub(crate) fn install_kiro() -> io::Result<KiroInstallPaths> {
     let dir = kiro_dir()?;
     if !dir.is_dir() {
@@ -1289,17 +1314,28 @@ pub(crate) fn install_kiro() -> io::Result<KiroInstallPaths> {
     fs::write(&hook_path, KIRO_HOOK_ASSET)?;
     make_executable(&hook_path)?;
 
-    Ok(KiroInstallPaths { hook_path })
+    let config_path = hooks_dir.join(KIRO_HOOK_CONFIG_INSTALL_NAME);
+    let config = kiro_hook_config(&hook_path);
+    fs::write(&config_path, serde_json::to_string_pretty(&config)?)?;
+
+    Ok(KiroInstallPaths {
+        hook_path,
+        config_path,
+    })
 }
 
 pub(crate) fn uninstall_kiro() -> io::Result<KiroUninstallResult> {
     let hooks_dir = kiro_dir()?.join("hooks");
     let hook_path = hooks_dir.join(KIRO_HOOK_INSTALL_NAME);
+    let config_path = hooks_dir.join(KIRO_HOOK_CONFIG_INSTALL_NAME);
 
     let removed_hook_file = remove_file_if_exists(&hook_path)?;
+    let removed_config_file = remove_file_if_exists(&config_path)?;
 
     Ok(KiroUninstallResult {
         hook_path,
+        config_path,
         removed_hook_file,
+        removed_config_file,
     })
 }

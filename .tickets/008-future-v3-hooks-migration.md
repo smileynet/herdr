@@ -1,19 +1,36 @@
 ---
-title: "[Future] Migrate to kiro-cli v3 standalone hooks format"
+title: "[Future] Validate v3 GA and remove Early Access caveats"
 status: open
 priority: low
 blocked_by: ["007"]
 ---
 
-# [Future] Migrate to kiro-cli v3 standalone hooks format
+# [Future] Validate v3 GA and remove Early Access caveats
 
-## What to build
+## Context
 
-When kiro-cli v3 is fully released and stable, update the integration to use the standalone `.kiro/hooks/<name>.json` file format instead of relying on the global hooks directory or agent config embedding.
+The kiro integration already targets v3 hooks (standalone `~/.kiro/hooks/herdr-agent-state.json`). However, v3 is currently "Early Access" (since 2.8.0, June 2026) and requires `kiro-cli --v3` flag.
 
-## Why deferred
+## What to do when v3 reaches GA
 
-v3 is currently in "Early Access" (since v2.8.0, June 2026) and requires `--v3` flag. The format may change before GA. We'll implement once it's finalized.
+1. Remove the "session reporting requires kiro-cli v3 mode" install message
+2. Verify hook auto-loading works without `--v3` flag
+3. Test with the GA version for any format changes
+4. Consider adding a minimum kiro-cli version check (`AgentVersionRequirement`)
+5. Update docs to remove Early Access caveats
+
+## Known v3 risks to re-check at GA
+
+- GitHub #9490: Custom agents not discovered in v3 (shouldn't affect global hooks)
+- Hook schema labeled "v1" — confirm it didn't change
+- Session format incompatibility between v2↔v3 (user awareness only)
+
+## Acceptance criteria
+
+- [ ] v3 is GA (no `--v3` flag needed)
+- [ ] Hook fires without `--v3` flag
+- [ ] Install message updated to remove v3 caveat
+- [ ] E2E validation passes on GA version
 
 ## Details
 

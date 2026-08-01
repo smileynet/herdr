@@ -24,21 +24,28 @@ Uses kiro-cli's global hooks directory (`~/.kiro/hooks/`) which auto-fires on al
 | 006 | Review/update detection manifest | done | — |
 | 007 | End-to-end validation | open | 004, 005, 006 |
 
-## Phase 2: v3 compat (deferred until v3 GA)
+## Phase 2: v3 GA validation (deferred until v3 leaves Early Access)
 
 | # | Ticket | Status | Depends on |
 |---|--------|--------|------------|
-| 008 | Migrate to v3 standalone hooks format | open | 007 |
+| 008 | Validate v3 GA and remove caveats | open | 007 |
 | 009 | Enhanced state reporting via v3 lifecycle | open | 008 |
 
 ## Key decisions
 
-- **Session-only hook**: Only fire on `agentSpawn` (v2) / `SessionStart` (v3). Screen detection handles working/blocked/idle.
+- **Session-only hook**: Only fire on `SessionStart` (v3). Screen detection handles working/blocked/idle.
+- **v3 global hooks required**: Global hooks (`~/.kiro/hooks/*.json`) are v3-only. v2 has no safe hook injection path (shadowing `kiro_default` breaks tool dispatch).
 - **No transcript_path**: Kiro-cli uses SQLite, not file-based transcripts. We report `session_id` only.
-- **Target ≥ 2.13**: Uses global hooks directory for clean installation (no agent config modification needed).
-- **v3 deferred**: v3 hooks are "Early Access" and may change. We'll implement when GA.
+- **Install outputs v3 caveat**: "session reporting requires kiro-cli v3 mode (kiro-cli --v3)"
+- **Detection works in v2**: The `kiro.toml` manifest handles working/blocked/idle via screen patterns regardless of hooks.
 - **Binary name**: `kiro-cli` (the `kiro` command is an optional router, not guaranteed available).
 - **Platform support**: Both Windows and Unix (kiro-cli supports both).
+
+## Lessons learned
+
+- **Do NOT shadow built-in agent names**: Creating `~/.kiro/agents/kiro_default.json` breaks all tool dispatch. See `~/.kiro/steering/agent-configuration-safety.md`.
+- **v2 global hooks don't exist**: The 2.13 changelog says "Available in V3 (`kiro-cli --v3`)" — global hooks are v3-only despite being introduced in the 2.13 release.
+- **Zig cross-drive path bug**: On Windows, set `ZIG_GLOBAL_CACHE_DIR` to the same drive as the project to avoid zig 0.15.x assertion failure.
 
 ## Research findings
 
