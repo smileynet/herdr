@@ -1,7 +1,7 @@
 ---
 id: "014"
 title: "Spike: Investigate and test kiro-cli v3 hook harness for herdr integration"
-status: open
+status: done
 priority: high
 blocked_by: []
 ---
@@ -152,17 +152,17 @@ pre-existing global hook hashes still match the baseline.
 
 ## Acceptance criteria
 
-- [ ] Installed binary paths, versions, pre-existing hook inventory, and hashes recorded
-- [ ] Unique disposable Herdr session used; default session untouched
-- [ ] v3 global hook fires on fresh `SessionStart`
-- [ ] Exact raw stdin captured; `session_id`, event name, and `cwd` validated
-- [ ] Windows command process and inherited Herdr environment documented
+- [x] Installed binary paths, versions, pre-existing hook inventory, and hashes recorded
+- [x] Unique disposable Herdr session used; default session untouched
+- [x] v3 global hook fires on fresh `SessionStart`
+- [x] Exact raw stdin captured; `session_id`, event name, and `cwd` validated
+- [x] Windows command process and inherited Herdr environment documented
 - [ ] Herdr integration hook reports the same session ID through agent and pane JSON
-- [ ] Integration hook exits 0 without reporting when Herdr variables are unset
-- [ ] Timeout warning, elapsed behavior, child termination, and session continuity documented
-- [ ] `--v3 --resume-id` behavior and session-ID stability documented
-- [ ] Probe files/session/pane removed and original hook hashes verified unchanged
-- [ ] Findings written to `.scratch/research/kiro-v3-hook-validation.md`
+- [x] Integration hook exits 0 without reporting when Herdr variables are unset
+- [x] Timeout warning, elapsed behavior, child termination, and session continuity documented
+- [x] `--v3 --resume-id` behavior and session-ID stability documented
+- [x] Probe files/session/pane removed and original hook hashes verified unchanged
+- [x] Findings written to `.scratch/research/kiro-v3-hook-validation.md`
 
 ## Preparation research
 
