@@ -43,6 +43,29 @@ Kiro is screen/OSC-only today. Confirmed facts:
 
 ## Reference / prior art (read these first)
 
+> UPDATE from 014 (live-validated against kiro-cli 2.29.0, herdr 0.9.3 —
+> `.scratch/research/kiro-v3-hook-validation.md`):
+> - An installed `herdr:kiro` integration ALREADY exists
+>   (`~/.kiro/hooks/herdr-agent-state.{json,ps1}`, `HERDR_INTEGRATION_VERSION=1`),
+>   but it is **SessionStart-only / identity-only** (reports
+>   `pane report-agent-session` from `session_id`). So Kiro currently belongs in
+>   `session_identity_only_integration`, NOT `full_lifecycle_hook_authority`.
+>   This ticket's real job is to **extend** it to full lifecycle, or decide to
+>   keep identity-only and rely on manifest 016 for state. Reconcile with the
+>   installed asset; the committed asset must supersede it via version bump.
+> - `SessionStart` STDIN keys = `session_id`, `hook_event_name` (value
+>   `"SessionStart"`, PascalCase), `cwd`. `session_id` is a **`sess_`-prefixed
+>   UUID** — treat the whole string as the id; do not assume bare UUID.
+> - **`SessionStart` does NOT fire on `--resume-id`.** A SessionStart-only hook
+>   will miss resumed panes. For full lifecycle, add a post-resume signal
+>   (first `UserPromptSubmit`/`PreToolUse`) if resume binding matters.
+> - `timeout` is integer **seconds**; a slow hook child is killed at timeout and
+>   startup is not blocked. Keep the hook fast and guarded.
+> - Kiro spawns the opaque Windows command string; the installed hook's explicit
+>   `powershell -NoProfile -ExecutionPolicy Bypass -File ...` is the correct
+>   portable pattern.
+
+
 - **Spike results**: ticket `014` and `.scratch/research/kiro-v3-hook-validation.md`
   (produced by 014). Do NOT start 015 until 014 has captured the real
   `SessionStart` payload, the Windows interpreter behavior, resume behavior, and
