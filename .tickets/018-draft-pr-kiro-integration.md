@@ -56,7 +56,36 @@ Per `CONTRIBUTING.md` and `AGENTS.md` "External contributor guardrail":
    branch referenced in ticket 014. Check:
    `gh pr list --repo herdrdev/herdr --search "kiro" --state all` and
    `git branch -a | Select-String kiro`. Learn from what was tried/closed.
-3. **Project conventions** (already in-repo, cite in the PR body):
+3. **Feature-discussion research (the approved path for a new surface).**
+   This integration is a new product surface, so the primary allowed channel for
+   an unapproved contributor is a **GitHub Discussion**, not an issue or PR
+   (`.github/ISSUE_TEMPLATE/config.yml` disables blank issues and routes feature
+   requests/ideas/contribution proposals to Discussions; the bug issue template
+   is only for reproduced bugs). Research before writing it:
+   - Read `.github/DISCUSSION_TEMPLATE/ideas.yml` — the `[idea]` template has
+     exactly three required fields: **idea / problem**, **requested change**,
+     **why you want this**. Draft the Discussion to those fields, short and
+     human-written, problem-first; do NOT paste the implementation, diffs, or
+     agent investigation dumps (CONTRIBUTING.md "Start a Discussion").
+   - Search existing Discussions for prior Kiro / integration / agent-detection
+     proposals so this does not duplicate and can reference prior interest:
+     ```
+     gh search prs --repo herdrdev/herdr kiro   # cross-check closed attempts
+     gh api 'repos/herdrdev/herdr/discussions?per_page=100' --jq '.[] | {num:.number,title:.title,cat:.category.name,state:.state}' 2>&1
+     # or browse https://github.com/herdrdev/herdr/discussions and filter: kiro, integration, hook, detection
+     ```
+     If `gh` lacks a discussions subcommand in this environment, use the GraphQL
+     API via `gh api graphql` to list `repository.discussions`, or fetch the
+     Discussions web page. Record discussion numbers/titles/categories found.
+   - Study how prior accepted integrations were proposed and discussed (what
+     framing got maintainer buy-in, what scope questions were asked, how
+     product-fit was argued) so the Kiro Discussion mirrors that tone. Note:
+     upvotes/comments show interest but do not guarantee implementation,
+     priority, or permission to open a PR (CONTRIBUTING.md).
+   - Capture findings in the draft (below) as a "prior discussion" subsection:
+     what exists, what was accepted/declined, and how the Kiro proposal relates.
+
+4. **Project conventions** (already in-repo, cite in the PR body):
    - `CONTRIBUTING.md`: one PR = one accepted problem, no bundled cleanup,
      lowercase conventional title (`feat: ...`), `refs #<issue>` in body (NOT
      `fixes/closes/resolves`), `just ci` must pass, don't touch root README/
@@ -68,6 +97,20 @@ Per `CONTRIBUTING.md` and `AGENTS.md` "External contributor guardrail":
 
 ## Draft artifacts to produce
 
+- `.tickets/pr/kiro-integration-discussion-draft.md` containing a GitHub
+  Discussion (`[idea]` category) written to the three required template fields
+  from `.github/DISCUSSION_TEMPLATE/ideas.yml`:
+  - **idea / problem**: Kiro CLI panes only get state from screen scraping, so
+    idle is lost on scroll, history/menu screens misclassify, and there is no
+    authoritative session identity/resume or reliable attention notification —
+    unlike claude/codex which have hook integrations.
+  - **requested change**: a first-party Kiro v3 hook integration (like
+    kimi/droid/claude) plus enriched `kiro.toml` fallback rules.
+  - **why you want this**: concrete user impact (accurate idle/working/blocked,
+    attention sounds that fire correctly, resume support when managing many Kiro
+    panes).
+  Keep it short and human-written; no diffs, no agent dumps. Include a "prior
+  discussion" note summarizing any existing related Discussions found.
 - `.tickets/pr/kiro-integration-pr-draft.md` containing:
   - **Title** (lowercase conventional): e.g. `feat: add kiro cli v3 hook integration`.
   - **Summary**: the problem (Kiro was screen-only), the two-part fix (hook
@@ -105,6 +148,8 @@ Per `CONTRIBUTING.md` and `AGENTS.md` "External contributor guardrail":
 
 - [ ] Prior merged integration PRs researched; findings summarized with PR numbers
 - [ ] Any prior Kiro PR/branch history reviewed
+- [ ] Existing related Discussions searched; relevant discussion numbers/titles recorded
+- [ ] `.tickets/pr/kiro-integration-discussion-draft.md` written to the `ideas.yml` three-field template, short and human-written
 - [ ] `.tickets/pr/kiro-integration-pr-draft.md` written (title, summary, changes, contract note, testing, verify steps)
 - [ ] Commit plan with proposed messages produced and left for user alignment
 - [ ] Contribution-policy gate evaluated and the correct path (Discussion vs approved PR) chosen and documented
