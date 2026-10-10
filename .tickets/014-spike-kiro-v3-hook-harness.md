@@ -17,19 +17,32 @@ pre-existing Kiro hooks.
 
 ## Observed baseline
 
-- `kiro-cli-chat 2.16.2` is installed and exposes `--v3` and `--resume-id`.
-- Herdr `0.8.0-preview.2026-08-04-d78e3d3b5126` is running inside Herdr.
-- `~/.kiro/hooks/herdr-agent-state.json` and `.ps1` already exist. They are
-  user-owned state and must not be overwritten or removed.
-- The installed PowerShell hook matches the asset in commit `8ad8928f`
-  line-for-line.
-- Branch `kiro-integration-pr` is one commit ahead and 53 commits behind
-  `master`. Do not check it out for this spike; read assets from commit
-  `8ad8928f` or use the matching installed hook.
-- Kiro documents JSON on stdin, second-based timeouts, project-root execution,
-  and non-blocking `SessionStart`. It does not document the implicit Windows
-  command interpreter, the exact v3 payload, resume behavior, or timeout
-  process-tree behavior; those are live-test questions.
+> UPDATED 2026-10-10 (spike worktree `spike/kiro-v3-hook-harness`). The original
+> baseline below was written against kiro-cli 2.16.2; the installed binary has
+> since moved to 2.29.0. Reconstructed context:
+> `.scratch/research/kiro-v3-state.md` and
+> `.scratch/research/kiro-cli-session-payload.md`.
+
+- **`kiro-cli-chat 2.29.0`** is installed (was 2.16.2 in the original note) and
+  exposes `--v3`, `--v2`, `--resume-id`, `--resume-picker`, `--sessions`,
+  `--list-sessions --format json`, and a new `kiro-cli serve` v3 WebSocket
+  engine. Live-capture facts must be taken from 2.29.0, not 2.16.2.
+- `~/.kiro/hooks/herdr-agent-state.json` and `.ps1` already exist and are a
+  **v1 herdr Kiro integration** (`HERDR_INTEGRATION_VERSION=1`, source
+  `herdr:kiro`, trigger `SessionStart`, `timeout: 10`, command
+  `powershell -ExecutionPolicy Bypass -File .../herdr-agent-state.ps1`). The
+  `.ps1` reads STDIN, parses JSON, and reports `pane report-agent-session` using
+  `session_id`. This is **session-identity-only** (no working/blocked/idle). It
+  is user-owned state and must NOT be overwritten or removed by the spike.
+  Implication: a prior session already shipped a v1 Kiro identity integration;
+  ticket 015 must reconcile/extend rather than build greenfield.
+- Herdr is running inside Herdr (`HERDR_ENV=1`). Record the exact
+  `herdr --version` at spike start.
+- Kiro documents JSON on stdin, non-blocking `SessionStart`, and standalone
+  `.kiro/hooks/*.json`. It does NOT pin, for 2.29.0: the exact `hook_event_name`
+  casing, the timeout field name/units (`timeout` seconds vs `timeout_ms`),
+  resume `SessionStart` behavior, or Windows command spawn/env details. Those
+  remain the live-test questions.
 
 ## Safety and isolation
 
