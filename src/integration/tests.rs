@@ -4756,3 +4756,115 @@ fn grok_dir_honors_grok_home_after_config_dir_seam() {
     clear_integration_path_env();
     let _ = fs::remove_dir_all(base);
 }
+
+#[test]
+fn install_kiro_writes_hook_and_config_and_reports_current() {
+    let _lock = integration_env_lock();
+    let base = unique_base();
+    let kiro_dir = base.join(".kiro");
+    fs::create_dir_all(&kiro_dir).unwrap();
+    std::env::set_var(KIRO_HOME_ENV_VAR, &kiro_dir);
+
+    let installed = install_kiro().unwrap();
+    let hooks_dir = kiro_dir.join("hooks");
+    assert_eq!(installed.hook_path, hooks_dir.join(KIRO_HOOK_INSTALL_NAME));
+    assert_eq!(
+        installed.config_path,
+        hooks_dir.join(KIRO_HOOK_CONFIG_INSTALL_NAME)
+    );
+    assert!(installed.hook_path.is_file());
+    assert!(installed.config_path.is_file());
+
+    // Kiro is withheld from the frozen IntegrationTarget enum, so it is only
+    // reported through the experimental status surface.
+    let status = experimental_kiro_integration_status().expect("kiro experimental status");
+    assert_eq!(status.label, "kiro");
+    assert_eq!(status.state, IntegrationStatusKind::Current);
+    assert_eq!(status.installed_version, Some(KIRO_INTEGRATION_VERSION));
+
+    std::env::remove_var(KIRO_HOME_ENV_VAR);
+    clear_integration_path_env();
+    let _ = fs::remove_dir_all(base);
+}
+
+#[test]
+fn kiro_hook_config_is_v3_schema_with_full_lifecycle_events() {
+    let hook_path = Path::new("hooks").join(KIRO_HOOK_INSTALL_NAME);
+    let config = super::targets::kiro_hook_config(&hook_path);
+
+    assert_eq!(config["version"], "v1");
+    let hooks = config["hooks"].as_array().expect("hooks array");
+    assert_eq!(hooks.len(), KIRO_HOOK_EVENTS.len());
+
+    // Every bundled lifecycle event maps to a standalone command hook that
+    // passes its state action to the shared script.
+    for (trigger, action) in KIRO_HOOK_EVENTS {
+        let entry = hooks
+            .iter()
+            .find(|hook| hook["trigger"] == trigger)
+            .unwrap_or_else(|| panic!("missing kiro hook for trigger {trigger}"));
+        assert_eq!(entry["action"]["type"], "command");
+        let command = entry["action"]["command"]
+            .as_str()
+            .expect("hook command string");
+        assert!(
+            command.ends_with(action),
+            "hook command for {trigger} should pass action {action}: {command}"
+        );
+    }
+
+    // SessionStart carries session identity; a Stop event closes the turn.
+    assert!(hooks.iter().any(|hook| hook["trigger"] == "SessionStart"));
+    assert!(hooks.iter().any(|hook| hook["trigger"] == "Stop"));
+}
+
+#[test]
+fn kiro_status_reports_outdated_when_hook_config_drifts() {
+    let _lock = integration_env_lock();
+    let base = unique_base();
+    let kiro_dir = base.join(".kiro");
+    fs::create_dir_all(&kiro_dir).unwrap();
+    std::env::set_var(KIRO_HOME_ENV_VAR, &kiro_dir);
+    install_kiro().unwrap();
+    let config_path = kiro_dir.join("hooks").join(KIRO_HOOK_CONFIG_INSTALL_NAME);
+
+    let kiro_state = || {
+        experimental_kiro_integration_status()
+            .expect("kiro experimental status")
+            .state
+    };
+    assert_eq!(kiro_state(), IntegrationStatusKind::Current);
+
+    // A hand-edited config that no longer matches the Herdr-owned shape is a
+    // nonfunctional install; status flags it so a reinstall rewrites it.
+    fs::write(&config_path, r#"{"version":"v1","hooks":[]}"#).unwrap();
+    assert_eq!(kiro_state(), IntegrationStatusKind::Outdated);
+
+    // A removed config downgrades a current script too.
+    fs::remove_file(&config_path).unwrap();
+    assert_eq!(kiro_state(), IntegrationStatusKind::Outdated);
+
+    std::env::remove_var(KIRO_HOME_ENV_VAR);
+    clear_integration_path_env();
+    let _ = fs::remove_dir_all(base);
+}
+
+#[test]
+fn uninstall_kiro_removes_both_files() {
+    let _lock = integration_env_lock();
+    let base = unique_base();
+    let kiro_dir = base.join(".kiro");
+    fs::create_dir_all(&kiro_dir).unwrap();
+    std::env::set_var(KIRO_HOME_ENV_VAR, &kiro_dir);
+    install_kiro().unwrap();
+
+    let result = uninstall_kiro().unwrap();
+    assert!(result.removed_hook_file);
+    assert!(result.removed_config_file);
+    assert!(!result.hook_path.exists());
+    assert!(!result.config_path.exists());
+
+    std::env::remove_var(KIRO_HOME_ENV_VAR);
+    clear_integration_path_env();
+    let _ = fs::remove_dir_all(base);
+}

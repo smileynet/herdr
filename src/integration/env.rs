@@ -13,6 +13,7 @@ pub(crate) const PI_CODING_AGENT_DIR_ENV_VAR: &str = "PI_CODING_AGENT_DIR";
 pub(crate) const OMP_CONFIG_DIR_ENV_VAR: &str = "PI_CONFIG_DIR";
 pub(crate) const CLAUDE_CONFIG_DIR_ENV_VAR: &str = "CLAUDE_CONFIG_DIR";
 pub(crate) const CODEX_HOME_ENV_VAR: &str = "CODEX_HOME";
+pub(crate) const KIRO_HOME_ENV_VAR: &str = "KIRO_HOME";
 pub(crate) const KIMI_CODE_HOME_ENV_VAR: &str = "KIMI_CODE_HOME";
 pub(crate) const COPILOT_HOME_ENV_VAR: &str = "COPILOT_HOME";
 pub(crate) const QODERCLI_CONFIG_DIR_ENV_VAR: &str = "QODER_CONFIG_DIR";
@@ -65,6 +66,10 @@ pub(crate) fn codex_dir() -> io::Result<PathBuf> {
 
 pub(crate) fn kimi_dir() -> io::Result<PathBuf> {
     config_dir_from_env_or_home(KIMI_CODE_HOME_ENV_VAR, &[".kimi-code"])
+}
+
+pub(crate) fn kiro_dir() -> io::Result<PathBuf> {
+    config_dir_from_env_or_home(KIRO_HOME_ENV_VAR, &[".kiro"])
 }
 
 pub(crate) fn copilot_dir() -> io::Result<PathBuf> {

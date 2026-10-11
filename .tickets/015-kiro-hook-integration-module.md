@@ -1,7 +1,7 @@
 ---
 id: "015"
 title: "Add Kiro CLI v3 hook integration module (full lifecycle authority)"
-status: open
+status: done
 priority: high
 blocked_by: ["014"]
 ---
@@ -165,15 +165,15 @@ Kiro is screen/OSC-only today. Confirmed facts:
 
 ## Acceptance criteria
 
-- [ ] 014 completed; `SessionStart`/event payloads and Windows behavior confirmed
-- [ ] `src/integration/assets/kiro/herdr-agent-state.{sh,ps1}` added, version 1, guarded, silent-exit when Herdr vars unset
-- [ ] `KIRO_*` constants + `KIRO_HOOK_EVENTS` added in `src/integration/mod.rs`
-- [ ] `IntegrationTarget::Kiro` appended (or experimental-letta-style path chosen) without reordering the frozen enum; contract reviewed
-- [ ] `registry.rs` label/command/supported/specs wired; array length bumped
-- [ ] `("herdr:kiro","kiro")` added to `full_lifecycle_hook_authority`; detection pausing verified
-- [ ] Integration install is idempotent, versioned, and never overwrites unrelated user hooks
-- [ ] Engine/plumbing unit tests added; `just ci` passes
-- [ ] Live validation recorded (CLI version, signals, transitions, resume)
+- [x] 014 completed; `SessionStart`/event payloads and Windows behavior confirmed
+- [x] `src/integration/assets/kiro/herdr-agent-state.{sh,ps1}` added, version 1, guarded, silent-exit when Herdr vars unset
+- [x] `KIRO_*` constants + `KIRO_HOOK_EVENTS` added in `src/integration/mod.rs`
+- [x] `IntegrationTarget::Kiro` appended (or experimental-letta-style path chosen) without reordering the frozen enum; contract reviewed
+- [x] `registry.rs` label/command/supported/specs wired; array length bumped
+- [x] `("herdr:kiro","kiro")` added to `full_lifecycle_hook_authority`; detection pausing verified
+- [x] Integration install is idempotent, versioned, and never overwrites unrelated user hooks
+- [x] Engine/plumbing unit tests added; `just ci` passes
+- [x] Live validation recorded (CLI version, signals, transitions, resume)
 
 ## Resolution
 

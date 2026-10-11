@@ -515,6 +515,46 @@ pub(crate) fn experimental_letta_integration_status() -> Option<super::Experimen
     })
 }
 
+/// Kiro CLI v3 integration status. Like Letta, Kiro is intentionally kept out of
+/// the frozen client endpoint `IntegrationTarget` enum so published
+/// generation-1 clients never receive an unknown value over
+/// `integration.install` / `integration.list`. The hook script carries the
+/// version marker; the sibling standalone `v1` JSON config must also match, so a
+/// drifted config downgrades a current script to Outdated (a reinstall rewrites
+/// both files).
+pub(crate) fn experimental_kiro_integration_status() -> Option<super::ExperimentalIntegrationStatus>
+{
+    let path = kiro_dir()
+        .ok()?
+        .join("hooks")
+        .join(super::KIRO_HOOK_INSTALL_NAME);
+    let (mut state, installed_version) =
+        integration_state_for_path(&path, super::KIRO_INTEGRATION_VERSION);
+    if state == super::IntegrationStatusKind::Current && !kiro_hook_config_is_valid(&path) {
+        state = super::IntegrationStatusKind::Outdated;
+    }
+    Some(super::ExperimentalIntegrationStatus {
+        label: "kiro",
+        path,
+        state,
+        installed_version,
+        expected_version: super::KIRO_INTEGRATION_VERSION,
+    })
+}
+
+/// Whether the Herdr-owned Kiro v3 hook config exactly matches the installed
+/// integration. JSON formatting and object key order do not affect validity.
+fn kiro_hook_config_is_valid(hook_path: &Path) -> bool {
+    let Some(hooks_dir) = hook_path.parent() else {
+        return false;
+    };
+    let config_path = hooks_dir.join(super::KIRO_HOOK_CONFIG_INSTALL_NAME);
+    fs::read_to_string(config_path)
+        .ok()
+        .and_then(|content| serde_json::from_str::<serde_json::Value>(&content).ok())
+        .is_some_and(|config| config == super::targets::kiro_hook_config(hook_path))
+}
+
 pub(crate) fn parse_integration_version(content: &str) -> Option<u32> {
     content.lines().find_map(|line| {
         let marker_line = line
