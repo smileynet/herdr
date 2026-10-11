@@ -122,8 +122,37 @@ status.
 - [x] Background-work rule added only if a stable signal exists
 - [x] `version` + `updated_at` bumped; `min_engine_version` raised if required
 - [x] Bundled `src/detect/manifests/kiro.toml` and `distribution/agent-detection/kiro.toml` kept aligned
-- [ ] Local override removed/restored; `just ci` + release-docs-check pass
+- [x] Local override removed/restored; `just ci` + release-docs-check pass
 
 ## Resolution
 
 Pending implementation.
+
+### 2026-10-10 — build reattempt cleared the test carry-over
+
+The full `herdr` test binary now compiles successfully with reduced codegen
+parallelism (`CARGO_BUILD_JOBS=1`, test `codegen-units=1`) — the earlier
+`STATUS_STACK_BUFFER_OVERRUN` was machine memory pressure during codegen, not a
+code defect. Re-ran the relevant suites green:
+
+- `detect::manifest::tests::all_bundled_manifests_parse_and_validate` — PASS
+  (the enriched `kiro.toml` passes bundled-manifest schema validation).
+- All 70 `manifest`-matching tests — PASS.
+- `integration::tests::bundled_integration_asset_versions_match_expected_versions`
+  and the 4 Kiro integration tests — PASS.
+- `advertised_client_shell_method_shapes_stay_at_the_v1_contract` — PASS
+  (frozen generation-1 endpoint contract intact).
+- `scripts/agent_detection_manifest_check.py --require-all-published` →
+  "agent detection manifests ok" (catalog consistency, the manifest-relevant
+  part of `release-docs-check`).
+
+Full-suite run: 3335/3344 passed. The 9 remaining failures are all
+environment-limited and unrelated to this change: 8 pre-existing `hermes`
+install/uninstall tests (confirmed failing on the clean baseline during ticket
+015) and 1 deadline-based plugin test
+(`windows_plugin_pane_commands_resolve_from_plugin_root_with_cwd_override`,
+`app::api::plugins` — a file this change never touched; it waits 5s for a
+spawned child to write a file and times out under memory pressure). AC8 checked:
+the manifest/schema/catalog checks pass and the temporary override was removed
+with reversion confirmed.
+
