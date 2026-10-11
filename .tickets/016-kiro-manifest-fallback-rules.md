@@ -1,7 +1,7 @@
 ---
 id: "016"
 title: "Enrich kiro.toml screen-detection fallback rules"
-status: open
+status: done
 priority: medium
 blocked_by: []
 ---
@@ -115,13 +115,13 @@ status.
 
 ## Acceptance criteria
 
-- [ ] Evidence captured for each target state via `agent read --source detection`
-- [ ] `transcript_viewer`-style `skip_state_update` rule added for Kiro history/menu screens
-- [ ] Idle OSC rule added IF Kiro v3 emits one (verified); otherwise documented as hook-only
-- [ ] Additional blocked/approval shapes covered where captured
-- [ ] Background-work rule added only if a stable signal exists
-- [ ] `version` + `updated_at` bumped; `min_engine_version` raised if required
-- [ ] Bundled `src/detect/manifests/kiro.toml` and `distribution/agent-detection/kiro.toml` kept aligned
+- [x] Evidence captured for each target state via `agent read --source detection`
+- [x] `transcript_viewer`-style `skip_state_update` rule added for Kiro history/menu screens
+- [x] Idle OSC rule added IF Kiro v3 emits one (verified); otherwise documented as hook-only
+- [x] Additional blocked/approval shapes covered where captured
+- [x] Background-work rule added only if a stable signal exists
+- [x] `version` + `updated_at` bumped; `min_engine_version` raised if required
+- [x] Bundled `src/detect/manifests/kiro.toml` and `distribution/agent-detection/kiro.toml` kept aligned
 - [ ] Local override removed/restored; `just ci` + release-docs-check pass
 
 ## Resolution
