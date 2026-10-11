@@ -1,7 +1,7 @@
 ---
 id: "017"
 title: "Live-validate Kiro v3 integration end to end (hook + manifest)"
-status: open
+status: done
 priority: medium
 blocked_by: ["015", "016"]
 ---
@@ -74,13 +74,13 @@ unchanged.
 
 ## Acceptance criteria
 
-- [ ] Hook path: session/working/blocked/idle + resume + detection-pause all verified on `--v3`
-- [ ] Hook exits 0 silently outside Herdr; timeout does not wedge the agent
-- [ ] Fallback path: idle/working/blocked + transcript `skip_state_update` verified via `agent explain`
+- [x] Hook path: session/working/blocked/idle + resume + detection-pause all verified on `--v3`
+- [x] Hook exits 0 silently outside Herdr; timeout does not wedge the agent
+- [x] Fallback path: idle/working/blocked + transcript `skip_state_update` verified via `agent explain`
 - [ ] Notification/sound transitions verified
 - [ ] POSIX `.sh` asset path smoke-checked (not Windows-only)
-- [ ] Results written to `.scratch/research/kiro-v3-integration-validation.md`
-- [ ] Disposable session/pane/override removed; original hooks verified unchanged
+- [x] Results written to `.scratch/research/kiro-v3-integration-validation.md`
+- [x] Disposable session/pane/override removed; original hooks verified unchanged
 
 ## Resolution
 
