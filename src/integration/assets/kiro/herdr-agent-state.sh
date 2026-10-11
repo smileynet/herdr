@@ -3,7 +3,7 @@
 # managed by herdr; reinstalling or updating the integration overwrites this file.
 # add custom hooks beside this file instead of editing it.
 # HERDR_INTEGRATION_ID=kiro
-# HERDR_INTEGRATION_VERSION=2
+# HERDR_INTEGRATION_VERSION=3
 
 action="${1:-}"
 case "$action" in
@@ -44,6 +44,7 @@ if action == "session":
     if session_id is None:
         raise SystemExit(0)
     method = "pane.report_agent_session"
+    params["session_start_source"] = "startup"
 else:
     method = "pane.report_agent"
     params["state"] = action

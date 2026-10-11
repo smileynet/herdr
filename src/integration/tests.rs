@@ -3201,6 +3201,7 @@ fn bundled_integration_asset_versions_match_expected_versions() {
             MASTRACODE_INTEGRATION_VERSION,
         ),
         ("grok", GROK_HOOK_ASSET, GROK_INTEGRATION_VERSION),
+        ("kiro", KIRO_HOOK_ASSET, KIRO_INTEGRATION_VERSION),
     ] {
         assert_eq!(
             parse_integration_version(asset),
@@ -4867,4 +4868,25 @@ fn uninstall_kiro_removes_both_files() {
     std::env::remove_var(KIRO_HOME_ENV_VAR);
     clear_integration_path_env();
     let _ = fs::remove_dir_all(base);
+}
+
+#[test]
+fn kiro_session_hook_anchors_with_startup_source() {
+    // Regression (ticket 017): the Kiro SessionStart report must carry a
+    // recognized session_start_source. Without it the runtime never anchors the
+    // session, so later working/idle reports are rejected and full lifecycle
+    // authority never engages. Both platform assets must send "startup" on the
+    // session action.
+    let ps1 = include_str!("assets/kiro/herdr-agent-state.ps1");
+    let sh = include_str!("assets/kiro/herdr-agent-state.sh");
+
+    assert!(
+        ps1.contains("report-agent-session") && ps1.contains("--session-start-source startup"),
+        "kiro .ps1 session report must pass --session-start-source startup"
+    );
+    assert!(
+        sh.contains("report_agent_session")
+            && sh.contains("\"session_start_source\"] = \"startup\""),
+        "kiro .sh session report must set session_start_source=startup"
+    );
 }

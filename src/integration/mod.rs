@@ -74,7 +74,7 @@ const KIRO_HOOK_ASSET: &str = if cfg!(windows) {
     include_str!("assets/kiro/herdr-agent-state.sh")
 };
 const KIRO_HOOK_CONFIG_INSTALL_NAME: &str = "herdr-agent-state.json";
-const KIRO_INTEGRATION_VERSION: u32 = 2;
+const KIRO_INTEGRATION_VERSION: u32 = 3;
 // Kiro CLI v3 standalone hook events. SessionStart reports session identity;
 // the turn/tool events drive full working/idle lifecycle authority. Kiro v3
 // does not expose a documented permission/notification event, so `blocked` is
