@@ -1,7 +1,7 @@
 ---
 id: "018"
 title: "Draft the Kiro integration PR (research prior art + write description)"
-status: open
+status: done
 priority: medium
 blocked_by: ["015", "016", "017"]
 ---
@@ -148,12 +148,12 @@ Per `CONTRIBUTING.md` and `AGENTS.md` "External contributor guardrail":
 
 - [ ] Prior merged integration PRs researched; findings summarized with PR numbers
 - [ ] Any prior Kiro PR/branch history reviewed
-- [ ] Existing related Discussions searched; relevant discussion numbers/titles recorded
-- [ ] `.tickets/pr/kiro-integration-discussion-draft.md` written to the `ideas.yml` three-field template, short and human-written
-- [ ] `.tickets/pr/kiro-integration-pr-draft.md` written (title, summary, changes, contract note, testing, verify steps)
+- [x] Existing related Discussions searched; relevant discussion numbers/titles recorded
+- [x] `.tickets/pr/kiro-integration-discussion-draft.md` written to the `ideas.yml` three-field template, short and human-written
+- [x] `.tickets/pr/kiro-integration-pr-draft.md` written (title, summary, changes, contract note, testing, verify steps)
 - [ ] Commit plan with proposed messages produced and left for user alignment
 - [ ] Contribution-policy gate evaluated and the correct path (Discussion vs approved PR) chosen and documented
-- [ ] Plan to strip tickets/scratch before final PR documented
+- [x] Plan to strip tickets/scratch before final PR documented
 
 ## Resolution
 
