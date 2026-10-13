@@ -19,6 +19,31 @@ Nothing is posted or pushed to herdrdev/herdr until the user says so.
 
 ## Dogfooding plan (now → a few weeks)
 
+**Status (2026-10-13): dogfood instrumentation is LIVE.**
+- v3 integration installed into `~/.kiro/hooks` (release build); prior v1 hook
+  backed up to `~/.kiro/hooks/.herdr-dogfood-backup/`.
+- Additive logging hook `~/.kiro/hooks/herdr-dogfood-log.{json,ps1}` writes every
+  Kiro v3 lifecycle event to `~/.herdr-kiro-dogfood/events.jsonl`.
+- Analysis tooling in `~/.herdr-kiro-dogfood/tools/`
+  (`analyze-dogfood.py`, `dogfood-snapshot.ps1`, `dogfood-teardown.ps1`) and the
+  `kiro-dogfood-review` agent skill.
+- Day-one finding already logged (`~/.herdr-kiro-dogfood/log.md`): the hook maps
+  both PreToolUse and PostToolUse to `working`, producing dozens of identical
+  working reports per turn — evaluate trimming `KIRO_HOOK_EVENTS` to
+  `[SessionStart, UserPromptSubmit→working, Stop→idle]`.
+
+**OPEN DECISION — which server runs the integration during dogfood:**
+- A: swap the daily server to a build with the integration (full fidelity, but
+  restarts the live session and makes the branch the daily driver). The daily
+  binary is a versioned standalone release selected by PATH at
+  `~/.herdr/packages/standalone/releases/<ver>` — reversible but invasive.
+- B: dedicated long-lived `herdr-dev` session on the release build; do Kiro work
+  there (non-destructive; partial coverage).
+- C: manifest-only on stable (zero risk; exercises screen detection + captures
+  the event log, but NOT hook authority — the stable server rejects
+  `herdr:kiro` reports).
+The event log is captured under all three; only A/B exercise hook authority.
+
 Run the integration on real daily Kiro usage to shake out issues the harness
 couldn't observe:
 
